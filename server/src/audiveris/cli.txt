@@ -1,0 +1,4 @@
+-batch
+-transcribe
+-export
+-output=src/audiveris/output

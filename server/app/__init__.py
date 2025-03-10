@@ -14,7 +14,9 @@ def create_app():
     # 注册路由
     from .routes.auth import auth_bp
     from .routes.scores import scores_bp
+    from .routes.omr import omr_bp
     app.register_blueprint(auth_bp)
     app.register_blueprint(scores_bp)
+    app.register_blueprint(omr_bp)
 
     return app
