@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    #embed-container {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+<div id="embed-container"></div>
+<script src="embed.min.js"></script>
+<script>
+  window.receiveXmlFromFlutter = async function(xmlText) {
+    const container = document.getElementById('embed-container');
+
+    const embed = new Flat.Embed(container, {
+      embedParams: {
+        appId: '59e7684b476cba39490801c2', // 替换为你的 appId
+        mode: 'edit',
+        layout: 'page',              // 分页显示
+        controlsPosition: 'top',     // 控件置顶
+        branding: false              // 去掉 Flat logo
+      }
+    });
+
+    try {
+      await embed.loadMusicXML(xmlText);
+      console.log("✅ 乐谱加载成功");
+      embed.ready().then(() => {
+        // ✅ 设置缩放比例，防止按钮挤不下
+      });
+    } catch (err) {
+      console.error("❌ 加载失败: ", err);
+    }
+  };
+</script>
+</body>
+</html>
