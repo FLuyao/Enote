@@ -1,4 +1,5 @@
 -batch
 -transcribe
 -export
+-constant TESSDATA_PREFIX=src/audiveris/tessdata
 -output=src/audiveris/output

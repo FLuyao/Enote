@@ -1,6 +1,6 @@
 /// 曲谱数据模型
 class ScoreItem {
-  final int id;
+  final String id;
   final String name;
   final String image;
   final String? xml;

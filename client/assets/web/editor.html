@@ -25,24 +25,23 @@
 
     const embed = new Flat.Embed(container, {
       embedParams: {
-        appId: '59e7684b476cba39490801c2', // 替换为你的 appId
+        appId: '59e7684b476cba39490801c2',
         mode: 'edit',
-        layout: 'page',              // 分页显示
-        controlsPosition: 'top',     // 控件置顶
-        branding: false              // 去掉 Flat logo
+        layout: 'page',
+        controlsPosition: 'top',
+        branding: false
       }
     });
 
     try {
-      await embed.loadMusicXML(xmlText);
+      await embed.ready(); // ✅ 等待 ready
+      await embed.loadMusicXML(xmlText); // ✅ 再加载 XML
       console.log("✅ 乐谱加载成功");
-      embed.ready().then(() => {
-        // ✅ 设置缩放比例，防止按钮挤不下
-      });
     } catch (err) {
       console.error("❌ 加载失败: ", err);
     }
   };
+
 </script>
 </body>
 </html>
