@@ -50,7 +50,7 @@ class CollectionDao {
       return ScoreItem(
         id: row['Scoreid'] as String,
         name: row['Title'] as String,
-        image: 'https://example.com/default.jpg', // 默认图片，可根据需要替换
+        image: 'https://ai-public.mastergo.com/ai/img_res/9546453bd05f12ea31d0fcd69e4a3e2b.jpg', // 默认图片，可根据需要替换
       );
     }).toList();
   }

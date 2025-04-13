@@ -81,7 +81,7 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
       scoreList = result.map((row) => ScoreItem(
         id: row['Scoreid'] as String,
         name: row['Title'] as String,
-        image: 'https://example.com/image.jpg',
+        image: 'https://ai-public.mastergo.com/ai/img_res/9546453bd05f12ea31d0fcd69e4a3e2b.jpg',
         xml: null,
       )).toList();
     });
