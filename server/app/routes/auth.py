@@ -42,6 +42,9 @@ def login():
     password = data.get('password')
     sync_enabled = data.get('sync_enabled')
 
+    if not username or not password:
+        return jsonify({'message': '昵称和密码为必填项'}), 400
+
     user = mongo.db.users.find_one({'username': username})
     if not user:
         return jsonify({'message': '用户不存在'}), 404
@@ -65,6 +68,9 @@ def reset_password():
     data = request.json
     username = data.get('username')
     new_password = data.get('new_password')
+
+    if not username or not new_password:
+        return jsonify({'message': '昵称和新密码为必填项'}), 400
 
     user = mongo.db.users.find_one({'username': username})
     if not user:
@@ -134,4 +140,46 @@ def sync_enabled():
     )
 
     return jsonify({'message': '云同步开关已修改'}), 200
+
+# 编辑用户信息
+@auth_bp.route('/edit_user_info', methods=['POST'])
+def edit_user_info():
+    # 验证 JWT 令牌
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({'message': '未提供令牌'}), 401
+
+    result = decode_token(token)
+    if isinstance(result, dict) and 'error' in result:
+        return jsonify(result), 401
+
+    payload = result
+    username = payload.get('username')
+    if not username:
+        return jsonify({'message': '令牌中未包含用户名'}), 401
+
+    # 编辑用户信息
+    data = request.json
+    new_username = data.get('new_username')
+    new_password = data.get('new_password')
+
+    if not new_username or not new_password:
+        return jsonify({'message': '昵称和密码为必填项'}), 400
+
+    if new_username:
+        if mongo.db.users.find_one({'username': new_username}):
+            return jsonify({'message': '用户名已存在'}), 400
+        mongo.db.users.update_one(
+            {'username': username},
+            {'$set': {'username': new_username}}
+        )
+
+    if new_password:
+        hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+        mongo.db.users.update_one(
+            {'username': username},
+            {'$set': {'password': hashed_password}}
+        )
+
+    return jsonify({'message': '用户信息已修改'}), 200  
 
