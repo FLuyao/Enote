@@ -1,3 +1,4 @@
+// ✅ 修改文件：score_dao.dart
 import 'package:sqflite/sqflite.dart';
 import 'database_helper.dart';
 import 'package:uuid/uuid.dart';
@@ -9,7 +10,7 @@ class ScoreDao {
   static Future<String> insertScore({
     required String userid,
     required String title,
-    String? xml,
+    String? mxlPath,
     String? image,
   }) async {
     final db = await DatabaseHelper().db;
@@ -22,13 +23,12 @@ class ScoreDao {
       'Title': title,
       'Create_time': now,
       'Access_time': now,
-      'Xml': xml,
+      'MxlPath': mxlPath,  // ✅ 更新字段
       'Image': image,
     });
-    print('✅ 曲谱插入 Score 表：$scoreId');
+    print('✅ 曲谱插入 Score 表：\$scoreId');
     return scoreId;
   }
-
 
   // 查询所有曲谱
   static Future<List<Map<String, dynamic>>> fetchAllScores({
@@ -78,7 +78,6 @@ class ScoreDao {
   static Future<void> debugPrintAllScores() async {
     final db = await DatabaseHelper().db;
     final result = await db.query('Score');
-    print('🧾 当前 Score 表数据：$result');
+    print('🧾 当前 Score 表数据：\$result');
   }
-
 }

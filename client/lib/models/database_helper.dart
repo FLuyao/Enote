@@ -27,9 +27,9 @@ class DatabaseHelper {
       version: 1,
       onCreate: _onCreate,
       onOpen: (db) async {
-        print("📂 数据库已打开: $path");
+        print("📂 数据库已打开: \$path");
         final tables = await db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'");
-        print("📋 当前所有表: $tables");
+        print("📋 当前所有表: \$tables");
       },
     );
   }
@@ -42,7 +42,7 @@ class DatabaseHelper {
       Title TEXT NOT NULL,
       Create_time TEXT NOT NULL,
       Access_time TEXT NOT NULL,
-      Xml TEXT,
+      MxlPath TEXT,         -- ✅ 改为保存本地 MXL 路径
       Image TEXT
     )
   ''');
@@ -68,4 +68,3 @@ class DatabaseHelper {
   ''');
   }
 }
-

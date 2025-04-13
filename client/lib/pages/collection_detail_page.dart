@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/score_item.dart';
 import '../models/score_dao.dart';
-import '../models/collection_dao.dart';
-import 'score_detail_page.dart';
-import '../models/collection_info_dao.dart';
 import '../models/collection_item_dao.dart';
-
+import 'score_detail_page.dart';
 
 class CollectionDetailPage extends StatefulWidget {
   final Map<String, dynamic> collection;
@@ -26,28 +23,18 @@ class _CollectionDetailPageState extends State<CollectionDetailPage> {
 
   void loadScores() async {
     final collectionId = widget.collection['Collectionid'];
-    print("🧭 当前查询 CollectionId: $collectionId");
-
-    // 打印所有 CollectionItem 表数据
-    await CollectionItemDao.debugPrintAllCollectionItems();
-
-    // 打印所有 Score 表数据
-    await ScoreDao.debugPrintAllScores();
-
     final items = await CollectionItemDao.fetchScoresInCollection(collectionId);
-    print("🎯 查询谱集内曲谱数量: ${items.length}");
-
     setState(() {
       scoreList = items;
     });
   }
 
-  void navigateToScoreDetail(ScoreItem item) {
+  void openScore(ScoreItem item) {
     ScoreDao.updateAccessTime(item.id);
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => ScoreDetailPage(scoreItem: item),
+        builder: (_) => MxlScoreDetailPage(scoreItem: item),
       ),
     );
   }
@@ -69,7 +56,7 @@ class _CollectionDetailPageState extends State<CollectionDetailPage> {
           itemBuilder: (context, index) {
             final item = scoreList[index];
             return GestureDetector(
-              onTap: () => navigateToScoreDetail(item),
+              onTap: () => openScore(item),
               child: Column(
                 children: [
                   Container(

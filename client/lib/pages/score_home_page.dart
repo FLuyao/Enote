@@ -12,6 +12,7 @@ import '../models/collection_item_dao.dart';
 
 
 
+
 /// 首页：包含顶部导航、标签栏、曲谱列表和排序菜单
 class ScoreHomePage extends StatefulWidget {
   @override
@@ -35,34 +36,34 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
         onImageImport: () {
           print('以图像方式导入曲谱');
         },
-          onMxlImported: (ScoreItem item) async {
-            final userid = UserSession.getUserId();
+        onMxlImported: (ScoreItem item) async {
+          final userid = UserSession.getUserId();
 
-            final scoreId = await ScoreDao.insertScore(
-              userid: userid,
-              title: item.name,
-              xml: item.xml,
-              image: item.image,
-            );
+          final scoreId = await ScoreDao.insertScore(
+            userid: userid,
+            title: item.name,
+            mxlPath: item.mxlPath, // ✅ 改为 mxlPath
+            image: item.image,
+          );
 
-            final savedItem = ScoreItem(
-              id: scoreId,
-              name: item.name,
-              image: item.image,
-              xml: item.xml,
-            );
+          final savedItem = ScoreItem(
+            id: scoreId,
+            name: item.name,
+            image: item.image,
+            mxlPath: item.mxlPath,
+          );
 
-            setState(() {
-              scoreList.add(savedItem);
-            });
+          setState(() {
+            scoreList.add(savedItem);
+          });
 
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => MxlScoreDetailPage(scoreItem: savedItem),
-              ),
-            );
-          }
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MxlScoreDetailPage(scoreItem: savedItem),
+            ),
+          );
+        },
 
       );
     });
@@ -75,14 +76,14 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
 
   void loadScoresFromDB() async {
     final userid = UserSession.getUserId();
-    final result = await ScoreDao.fetchAllScores(userid: userid); // ✅ 添加这行
+    final result = await ScoreDao.fetchAllScores(userid: userid);
 
     setState(() {
       scoreList = result.map((row) => ScoreItem(
         id: row['Scoreid'] as String,
         name: row['Title'] as String,
-        image: 'https://ai-public.mastergo.com/ai/img_res/9546453bd05f12ea31d0fcd69e4a3e2b.jpg',
-        xml: null,
+        image: row['Image'] as String? ?? 'https://ai-public.mastergo.com/ai/img_res/9546453bd05f12ea31d0fcd69e4a3e2b.jpg',
+        mxlPath: row['MxlPath'] as String?, // ✅ 从数据库读取路径
       )).toList();
     });
   }
@@ -181,14 +182,6 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
     });
   }
 
-  void navigateToScoreDetail(ScoreItem item) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ScoreDetailPage(scoreItem: item),
-      ),
-    );
-  }
 
   void navigateToMxlScoreDetail(ScoreItem item) {
     Navigator.push(
@@ -359,7 +352,7 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
                     id: item.id,
                     name: controller.text,
                     image: item.image,
-                    xml: item.xml,
+                    mxlPath: item.mxlPath,
                   );
                 });
                 Navigator.pop(context);
@@ -423,12 +416,8 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
         final item = scoreList[index];
         return GestureDetector(
           onTap: () {
-            if (item.xml != null) {
               navigateToMxlScoreDetail(item);
-            } else {
-              navigateToScoreDetail(item);
-            }
-          },
+            },
           onLongPress: () => showScoreActions(item, index),
           child: Column(
             children: [
@@ -565,12 +554,8 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
             final item = scores[index];
             return GestureDetector(
               onTap: () {
-                if (item.xml != null) {
                   navigateToMxlScoreDetail(item);
-                } else {
-                  navigateToScoreDetail(item);
-                }
-              },
+                },
               child: Column(
                 children: [
                   Container(

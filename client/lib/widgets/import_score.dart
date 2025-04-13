@@ -109,13 +109,20 @@ class ImportHandler {
       return;
     }
 
+    final dir = await getApplicationDocumentsDirectory();
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);  // ⭐ 确保目录存在
+    }
+    final fileName = 'score_${DateTime.now().millisecondsSinceEpoch}.mxl';
+    final savedPath = '${dir.path}/$fileName';
+    final file = File(savedPath);
+    await file.writeAsBytes(fileBytes);
     final newItem = ScoreItem(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: '新导入曲谱',
       image: 'https://ai-public.mastergo.com/ai/img_res/9546453bd05f12ea31d0fcd69e4a3e2b.jpg',
-      xml: xmlString,
+      mxlPath: savedPath,
     );
-
     onMxlImported(newItem);
   }
 
@@ -124,14 +131,7 @@ class ImportHandler {
     try {
       final file = File(filePath);
       if (!file.existsSync()) {
-        print('❌ 文件不存在: $filePath');
-        return false;
-      }
-
-      final bytes = await file.readAsBytes();
-      final xmlString = _unzipMxlToXml(bytes);
-      if (xmlString == null) {
-        print('❌ _importMxlFromLocalFile: 解压 XML 失败');
+        print('❌ 文件不存在: \$filePath');
         return false;
       }
 
@@ -139,15 +139,16 @@ class ImportHandler {
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: name,
         image: 'https://ai-public.mastergo.com/ai/img_res/9546453bd05f12ea31d0fcd69e4a3e2b.jpg',
-        xml: xmlString,
+        mxlPath: filePath,
       );
 
       onMxlImported(newItem);
       return true;
     } catch (e) {
-      print('❌ _importMxlFromLocalFile: $e');
+      print('❌ _importMxlFromLocalFile: \$e');
       return false;
     }
+  }
   }
 
   /// 解压 .mxl 并读取其中的 .xml
@@ -167,7 +168,7 @@ class ImportHandler {
       return null;
     }
   }
-}
+
 
 class ImportDialog extends StatelessWidget {
   final VoidCallback onImportByImage;
