@@ -1,19 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'Register.dart';
+import 'enter.dart';
+import 'user_info.dart';
+import 'privacy_policy_page.dart';
+import 'more_settings_page.dart';
+import 'theme_provider.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 /// 主入口 App
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return MaterialApp(
       title: '曲谱 App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: ScoreHomePage(),
+      theme: themeProvider.lightTheme,
+      darkTheme: themeProvider.darkTheme,
+      themeMode: themeProvider.currentTheme,
+      home:ScoreHomePage(), // ✅ 你的主页面
+      routes: {
+        '/main': (context) => ScoreHomePage(),
+        '/user_info': (context) => const UserInfoPage(token: '', username: ''),
+        '/privacy-policy': (context) => const PrivacyPolicyPage(),
+        '/more-settings': (context) => const MoreSettingsPage(),
+      },
     );
   }
 }
@@ -38,6 +61,9 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
   bool showSortMenu = false;
   String currentSort = '时间排序';
   TextEditingController searchController = TextEditingController();
+
+  String token = '';
+  String username = '';
 
   // 曲谱数据（这里补充了 id 字段）
   List<ScoreItem> scoreList = [
@@ -102,12 +128,27 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
   }
 
   // 导航到个人主页（示例页面）
-  void navigateToProfile() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => ProfilePage()),
-    );
+  void navigateToProfile() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    String? username = prefs.getString('username');
+
+    if (token != null && username != null) {
+      // 已登录，跳转到用户信息页
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => UserInfoPage(token: token,username: username)),
+      );
+    } else {
+      // 未登录，跳转到登录页
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) =>  ProfilePage()),
+      );
+    }
   }
+
+
 
   // 搜索框点击：这里清空输入框，可进一步拓展为自动聚焦等逻辑
   void showSearch() {
@@ -152,9 +193,27 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
   }
 
   @override
+
+  void initState() {
+    super.initState();
+    _loadUserData().then((data) {
+      setState(() {
+        token = data['token']!;
+        username = data['username']!;
+      });
+    });
+  }
+
+  Future<Map<String, String>> _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = prefs.getString('token') ?? '';
+    String username = prefs.getString('username') ?? '';
+    return {'token': token, 'username': username};
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFFFFDF8),
+      backgroundColor:Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           Column(
@@ -301,10 +360,10 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
-                      crossAxisSpacing: 20.0,
-                      mainAxisSpacing: 20.0,
-                      childAspectRatio: 0.8
+                        crossAxisCount: 3,
+                        crossAxisSpacing: 20.0,
+                        mainAxisSpacing: 20.0,
+                        childAspectRatio: 0.8
                     ),
                     itemCount: scoreList.length,
                     itemBuilder: (context, index) {
@@ -482,13 +541,166 @@ class ImportDialog extends StatelessWidget {
   }
 }
 
-/// 个人主页（示例页面）
-class ProfilePage extends StatelessWidget {
+//个人主页
+class ProfilePage extends StatefulWidget {
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  late Future<String?> usernameFuture;
+
+  final Color primaryColor = Color(0xFFFFE9BF);
+  final Color secondaryColor = Color(0xFF3C3C39);
+  final Color backgroundColor = Colors.white;
+  final Color buttonYellow = Color(0xFFFADB7D);
+
+  @override
+  void initState() {
+    super.initState();
+    usernameFuture = _getUsername();
+  }
+
+  Future<String?> _getUsername() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('username');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("个人主页")),
-      body: Center(child: Text("这里是个人主页内容")),
+      backgroundColor: backgroundColor,
+      appBar: AppBar(
+        backgroundColor: primaryColor,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, size: 20, color: Colors.black),
+          onPressed: () async {
+            // 清除登录信息
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.remove('token');
+            await prefs.remove('username');
+
+            // 跳转到主页面并清空栈（防止用户返回）
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => ScoreHomePage()), // 你主页面的 widget
+                  (Route<dynamic> route) => false,
+            );
+          },
+        ),
+
+        title: Text(
+          "个人主页",
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w500,
+            color: Colors.black,
+          ),
+        ),
+      ),
+      body: FutureBuilder<String?>(
+        future: usernameFuture,
+        builder: (context, snapshot) {
+          final username = snapshot.data ?? '未登录';
+
+          return SingleChildScrollView(
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // 头像区域
+                    Column(
+                      children: [
+                        Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.person,
+                            size: 32,
+                            color: secondaryColor,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          username.isNotEmpty ? username : '未登录',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 32),
+                    // 按钮区域
+                    Column(
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryColor,
+                            foregroundColor: Colors.black,
+                            fixedSize: Size(240, 48),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          onPressed: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => LoginPage()),
+                            );
+                            setState(() {
+                              usernameFuture = _getUsername(); // 登录回来刷新昵称
+                            });
+                          },
+                          child: Text(
+                            '登录',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: secondaryColor),
+                            foregroundColor: Colors.black,
+                            fixedSize: Size(240, 48),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => RegisterPage()),
+                            );
+                          },
+                          child: Text(
+                            '注册',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 32),
+                    Text(
+                      '登录后可开启云同步功能',
+                      style: TextStyle(
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -509,3 +721,7 @@ class ScoreDetailPage extends StatelessWidget {
     );
   }
 }
+
+
+
+
