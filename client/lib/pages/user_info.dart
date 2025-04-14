@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'main.dart';
+import 'score_home_page.dart';
 import 'more_settings_page.dart';
 import 'about_us_page.dart';
 import 'package:http/http.dart' as http;
