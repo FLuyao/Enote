@@ -45,7 +45,7 @@ class CollectionItemDao {
       return ScoreItem(
         id: row['Scoreid'] as String,
         name: row['Title'] as String,
-        image: row['Image'] as String? ?? 'https://ai-public.mastergo.com/ai/img_res/9546453bd05f12ea31d0fcd69e4a3e2b.jpg',
+        image: row['Image'] as String? ?? 'assets/imgs/score_icon.jpg',
         mxlPath: row['MxlPath'] as String?,
       );
     }).toList();

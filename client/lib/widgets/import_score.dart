@@ -121,7 +121,7 @@ class ImportHandler {
     final newItem = ScoreItem(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       name: extractedTitle ?? '未命名曲谱',
-      image: 'https://ai-public.mastergo.com/ai/img_res/9546453bd05f12ea31d0fcd69e4a3e2b.jpg',
+      image: 'assets/imgs/score_icon.jpg',
       mxlPath: savedPath,
     );
     onMxlImported(newItem);
@@ -138,7 +138,7 @@ class ImportHandler {
       final newItem = ScoreItem(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: name,
-        image: 'https://ai-public.mastergo.com/ai/img_res/9546453bd05f12ea31d0fcd69e4a3e2b.jpg',
+        image: 'assets/imgs/score_icon.jpg',
         mxlPath: filePath,
       );
 

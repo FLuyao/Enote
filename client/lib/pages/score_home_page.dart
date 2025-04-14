@@ -86,7 +86,7 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
       scoreList = result.map((row) => ScoreItem(
         id: row['Scoreid'] as String,
         name: row['Title'] as String,
-        image: row['Image'] as String? ?? 'https://ai-public.mastergo.com/ai/img_res/9546453bd05f12ea31d0fcd69e4a3e2b.jpg',
+        image: row['Image'] as String? ?? 'assets/imgs/score_icon.jpg',
         mxlPath: row['MxlPath'] as String?,
         accessTime: row['Access_time'] as String?, // ✅ 加上这行
       )).toList();
@@ -483,13 +483,16 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
               Container(
                 width: 110,
                 height: 110,
-                decoration: BoxDecoration(
+                child: ClipRRect(
                   borderRadius: BorderRadius.circular(12),
-                  image: DecorationImage(
-                    image: NetworkImage(item.image),
+                  child: Image.asset(
+                    'assets/imgs/score_icon.jpg',
+                    width: 110,
+                    height: 110,
                     fit: BoxFit.cover,
                   ),
                 ),
+
               ),
               SizedBox(height: 8),
               Container(

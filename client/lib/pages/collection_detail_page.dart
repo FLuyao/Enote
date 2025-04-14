@@ -62,10 +62,12 @@ class _CollectionDetailPageState extends State<CollectionDetailPage> {
                   Container(
                     width: 110,
                     height: 110,
-                    decoration: BoxDecoration(
+                    child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                      image: DecorationImage(
-                        image: NetworkImage(item.image),
+                      child: Image.asset(
+                        'assets/imgs/score_icon.jpg',
+                        width: 110,
+                        height: 110,
                         fit: BoxFit.cover,
                       ),
                     ),
