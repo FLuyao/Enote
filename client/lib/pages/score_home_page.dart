@@ -14,9 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'Register.dart';
 import 'enter.dart';
 import 'user_info.dart';
-import 'privacy_policy_page.dart';
-import 'more_settings_page.dart';
-import 'theme_provider.dart';
+
 
 
 /// 首页：包含顶部导航、标签栏、曲谱列表和排序菜单
@@ -30,12 +28,20 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
   List<ScoreItem> scoreList = [];
   List<Map<String, dynamic>> collectionList = [];
   Map<String, dynamic>? selectedCollection;
+  String? token;
+  String? username;
 
   @override
   void initState() {
     super.initState();
     loadScoresFromDB();
     loadCollections();
+    _loadUserData().then((data) {
+      setState(() {
+        token = data['token'];
+        username = data['username'];
+      });
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       importHandler = ImportHandler(
         context: context,
@@ -74,6 +80,8 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
       );
     });
   }
+
+
 
   String activeTab = 'shelf';
   bool showSortMenu = false;
@@ -607,15 +615,6 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
     );
   }
   @override
-void initState() {
-    super.initState();
-    _loadUserData().then((data) {
-      setState(() {
-        token = data['token']!;
-        username = data['username']!;
-      });
-    });
-  }
 
   Future<Map<String, String>> _loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -989,3 +988,4 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 }
+
