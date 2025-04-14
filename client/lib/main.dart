@@ -3,19 +3,34 @@ import 'pages/score_home_page.dart';
 
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 /// 主入口 App
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return MaterialApp(
       title: '曲谱 App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: ScoreHomePage(),
+      theme: themeProvider.lightTheme,
+      darkTheme: themeProvider.darkTheme,
+      themeMode: themeProvider.currentTheme,
+      home:ScoreHomePage(), // ✅ 你的主页面
+      routes: {
+        '/main': (context) => ScoreHomePage(),
+        '/user_info': (context) => const UserInfoPage(token: '', username: ''),
+        '/privacy-policy': (context) => const PrivacyPolicyPage(),
+        '/more-settings': (context) => const MoreSettingsPage(),
+      },
     );
   }
 }
