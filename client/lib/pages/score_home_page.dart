@@ -25,6 +25,9 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
   List<Map<String, dynamic>> collectionList = [];
   Map<String, dynamic>? selectedCollection;
 
+
+
+
   @override
   void initState() {
     super.initState();
@@ -160,6 +163,13 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
     });
   }
 
+  String searchText = '';
+
+  List<ScoreItem> getFilteredScores() {
+    if (searchText.isEmpty) return scoreList;
+    return scoreList.where((score) =>
+        score.name.toLowerCase().contains(searchText.toLowerCase())).toList();
+  }
 
   void switchTab(String tab) {
     setState(() {
@@ -193,10 +203,42 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
   }
 
   void showSearch() {
-    setState(() {
-      searchController.clear();
-    });
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('搜索曲谱'),
+          content: TextField(
+            controller: searchController,
+            autofocus: true,
+            decoration: InputDecoration(hintText: '输入曲谱标题'),
+            onChanged: (value) {
+              setState(() {
+                searchText = value;
+              });
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  searchText = '';
+                  searchController.clear();
+                });
+                Navigator.pop(context);
+              },
+              child: Text('清除'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('关闭'),
+            ),
+          ],
+        );
+      },
+    );
   }
+
 
 
   void navigateToMxlScoreDetail(ScoreItem item) {
@@ -418,6 +460,7 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
 
 
   Widget buildScoreGrid() {
+    final filteredScores = getFilteredScores();
     return GridView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
@@ -427,9 +470,9 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
         mainAxisSpacing: 20,
         childAspectRatio: 0.8,
       ),
-      itemCount: scoreList.length,
+      itemCount: filteredScores.length,
       itemBuilder: (context, index) {
-        final item = scoreList[index];
+        final item = filteredScores[index];
         return GestureDetector(
           onTap: () {
               navigateToMxlScoreDetail(item);
