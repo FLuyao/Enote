@@ -20,10 +20,13 @@
 <div id="embed-container"></div>
 <script src="embed.min.js"></script>
 <script>
+  let embedInstance = null;
+
+  // Flutter 调用：向 WebView 传入 XML 初始化乐谱
   window.receiveXmlFromFlutter = async function(xmlText) {
     const container = document.getElementById('embed-container');
 
-    const embed = new Flat.Embed(container, {
+    embedInstance = new Flat.Embed(container, {
       embedParams: {
         appId: '59e7684b476cba39490801c2',
         mode: 'edit',
@@ -34,14 +37,30 @@
     });
 
     try {
-      await embed.ready(); // ✅ 等待 ready
-      await embed.loadMusicXML(xmlText); // ✅ 再加载 XML
+      await embedInstance.ready();
+      await embedInstance.loadMusicXML(xmlText);
       console.log("✅ 乐谱加载成功");
     } catch (err) {
       console.error("❌ 加载失败: ", err);
     }
   };
 
+  // Flutter 可执行 JS 触发该方法，从 WebView 获取 XML 并传回 Flutter
+  async function saveAndSendToFlutter() {
+    if (!embedInstance) return;
+
+    try {
+      const xml = await embedInstance.getMusicXML();
+      if (window.FlutterPostMessage && typeof window.FlutterPostMessage.postMessage === 'function') {
+        window.FlutterPostMessage.postMessage(xml);
+        console.log("📤 已发送 XML 到 Flutter");
+      } else {
+        console.warn("⚠️ FlutterPostMessage 未定义");
+      }
+    } catch (err) {
+      console.error("❌ 获取 XML 失败", err);
+    }
+  }
 </script>
 </body>
 </html>

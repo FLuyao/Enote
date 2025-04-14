@@ -1,3 +1,4 @@
+// ✅ 修改文件：collection_dao.dart
 import 'package:sqflite/sqflite.dart';
 import 'database_helper.dart';
 import 'score_item.dart';  // 导入 ScoreItem 模型
@@ -39,7 +40,7 @@ class CollectionDao {
     final db = await DatabaseHelper().db;
 
     final result = await db.rawQuery('''
-      SELECT s.Scoreid, s.Title
+      SELECT s.Scoreid, s.Title, s.MxlPath, s.Image
       FROM Collection c
       JOIN Score s ON c.Scoreid = s.Scoreid
       WHERE c.Collectionid = ?
@@ -50,7 +51,8 @@ class CollectionDao {
       return ScoreItem(
         id: row['Scoreid'] as String,
         name: row['Title'] as String,
-        image: 'https://example.com/default.jpg', // 默认图片，可根据需要替换
+        image: row['Image'] as String? ?? 'assets/imgs/score_icon.jpg',
+        mxlPath: row['MxlPath'] as String?,
       );
     }).toList();
   }

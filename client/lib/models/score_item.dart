@@ -1,14 +1,15 @@
-/// 曲谱数据模型
 class ScoreItem {
   final String id;
   final String name;
   final String image;
-  final String? xml;
+  final String? mxlPath;
+  final String? accessTime; // ✅ 新增字段
 
   ScoreItem({
     required this.id,
     required this.name,
     required this.image,
-    this.xml,
+    this.mxlPath,
+    this.accessTime,
   });
 }

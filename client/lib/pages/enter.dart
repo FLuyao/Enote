@@ -5,6 +5,7 @@ import 'register.dart';
 import 'user_info.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'reset_password.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -46,14 +47,18 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, size: 20, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-          style: IconButton.styleFrom(
+        leading: SizedBox(
+          width: 40,
+          height: 40,
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back, size: 20, color: Colors.black),
+            onPressed: () => Navigator.pop(context),
             padding: EdgeInsets.zero,
-            minimumSize: const Size(40, 40),
+            iconSize: 20,
           ),
         ),
+
+
         title: Text(
           "登录",
           style: TextStyle(
@@ -126,9 +131,14 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 8),
-              // 忘记密码链接
+// 忘记密码链接
               TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ResetPasswordPage()),
+                  );
+                },
                 child: Text(
                   '忘记密码？',
                   style: TextStyle(color: primaryColor),
