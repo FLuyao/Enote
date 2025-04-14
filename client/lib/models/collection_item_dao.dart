@@ -1,3 +1,4 @@
+// ✅ 修改文件：collection_item_dao.dart
 import 'package:sqflite/sqflite.dart';
 import 'database_helper.dart';
 import 'package:uuid/uuid.dart';
@@ -19,35 +20,34 @@ class CollectionItemDao {
       'Orderno': orderno,
     });
   }
+
   static Future<void> debugPrintAllCollectionItems() async {
     final db = await DatabaseHelper().db;
     final result = await db.query('CollectionItem');
-    print('📦 CollectionItem 表数据：$result');
+    print('📦 CollectionItem 表数据：\$result');
   }
 
   static Future<List<ScoreItem>> fetchScoresInCollection(String collectionId) async {
     final db = await DatabaseHelper().db;
-    print("🧪 开始查询 CollectionId: $collectionId");
+    print("🧪 开始查询 CollectionId: \$collectionId");
 
     final result = await db.rawQuery('''
-      SELECT s.Scoreid, s.Title, s.Xml, s.Image
+      SELECT s.Scoreid, s.Title, s.MxlPath, s.Image
       FROM CollectionItem c
       JOIN Score s ON c.Scoreid = s.Scoreid
       WHERE c.Collectionid = ?
       ORDER BY c.Orderno ASC
     ''', [collectionId]);
 
-    print("📤 查询结果内容: $result");
+    print("📤 查询结果内容: \$result");
 
     return result.map((row) {
       return ScoreItem(
         id: row['Scoreid'] as String,
         name: row['Title'] as String,
-        image: row['Image'] as String? ?? 'https://ai-public.mastergo.com/ai/img_res/9546453bd05f12ea31d0fcd69e4a3e2b.jpg',
-        xml: row['Xml'] as String?,
+        image: row['Image'] as String? ?? 'assets/imgs/score_icon.jpg',
+        mxlPath: row['MxlPath'] as String?,
       );
     }).toList();
-
-
   }
 }
