@@ -14,16 +14,44 @@ def sync_score():
     client_files = request.files  # 获取客户端上传的所有文件
     fs = GridFS(mongo.db)  # 初始化 GridFS
 
+    # 获取 JSON 数据中的元数据
+    scores_metadata = request.json.get('scores', [])
+
+    # 创建一个字典来存储元数据，以便快速查找
+    metadata_dict = {metadata['scoreId']: metadata for metadata in scores_metadata}
+
     for score_id, file in client_files.items():
         # 获取文件名作为元数据的一部分
         filename = file.filename
-        creat_time = request.json.get('createTime')
-        modify_time = request.json.get('modifyTime') 
-        device_id = request.json.get('DeviceId')  
-        composer = request.json.get('composer')
-        collection_id = request.json.get('collectionId')
-        collection_name = request.json.get('collectionName')
-        order_no = request.json.get('orderNo')
+
+        # 获取 JSON 数据中的元数据
+        metadata = metadata_dict.get(score_id)
+
+        if not metadata:
+            return jsonify({'message': f'元数据未提供或不匹配文件 {score_id}'}), 400
+
+        # 提取元数据字段
+        creat_time = metadata.get('createTime')
+        modify_time = metadata.get('modifyTime')
+        device_id = metadata.get('deviceId')
+        composer = metadata.get('composer')
+        collection_id = metadata.get('collectionId')
+        collection_name = metadata.get('collectionName')
+        order_no = metadata.get('orderNo')
+
+        # 构建客户端曲谱数据
+        client_score = {
+            'scoreId': score_id,
+            'fileId': None,
+            'name': filename,
+            'createTime': creat_time,
+            'accessTime': modify_time,
+            'deviceId': device_id,
+            'composer': composer,
+            'collectionId': collection_id,
+            'collectionName': collection_name,
+            'orderNo': order_no,
+        }
 
 
         # 构建客户端曲谱数据
