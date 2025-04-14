@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, send_file
+from flask import Blueprint, request, jsonify
 from bson.objectid import ObjectId
 from gridfs import GridFS
 from .. import mongo
