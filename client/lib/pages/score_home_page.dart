@@ -55,6 +55,7 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
 
           setState(() {
             scoreList.add(savedItem);
+            sortScores(); // ✅ 保持当前排序方式
           });
 
           Navigator.push(
@@ -83,10 +84,25 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
         id: row['Scoreid'] as String,
         name: row['Title'] as String,
         image: row['Image'] as String? ?? 'https://ai-public.mastergo.com/ai/img_res/9546453bd05f12ea31d0fcd69e4a3e2b.jpg',
-        mxlPath: row['MxlPath'] as String?, // ✅ 从数据库读取路径
+        mxlPath: row['MxlPath'] as String?,
+        accessTime: row['Access_time'] as String?, // ✅ 加上这行
       )).toList();
+      sortScores(); // ✅ 排序
     });
   }
+
+  void sortScores() {
+    if (currentSort == '时间排序') {
+      scoreList.sort((a, b) {
+        final aTime = DateTime.tryParse(a.accessTime ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final bTime = DateTime.tryParse(b.accessTime ?? '') ?? DateTime.fromMillisecondsSinceEpoch(0);
+        return bTime.compareTo(aTime); // ✅ 最近时间在前
+      });
+    } else if (currentSort == '首字母排序') {
+      scoreList.sort((a, b) => a.name.compareTo(b.name));
+    }
+  }
+
 
   void addNewScore(String name) async {
     final userid = UserSession.getUserId();
@@ -166,9 +182,9 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
     setState(() {
       currentSort = type == 'time' ? '时间排序' : '首字母排序';
       showSortMenu = false;
+      sortScores();
     });
   }
-
   void navigateToProfile() {
     Navigator.push(
       context,
@@ -513,7 +529,7 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
               Container(
                 width: 110,
                 child: Text(
-                  '谱集 ${index}',
+                  item['Title'] ?? '未命名谱集',
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                 ),
