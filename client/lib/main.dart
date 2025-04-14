@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'pages/score_home_page.dart';
+import 'pages/privacy_policy_page.dart';
+import 'pages/more_settings_page.dart';
+import 'pages/theme_provider.dart';
+import 'pages/user_info.dart';
+import 'package:provider/provider.dart';
+
 
 
 void main() {
@@ -34,6 +40,10 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+
+
+
 
 
 
