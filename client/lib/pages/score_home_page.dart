@@ -52,10 +52,10 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
           print('以图像方式导入曲谱');
         },
         onMxlImported: (ScoreItem item) async {
-          final userid = UserSession.getUserId();
+          final localid = UserSession.getUserId();
 
           final scoreId = await ScoreDao.insertScore(
-            userid: userid,
+            localid: localid,
             title: item.name,
             mxlPath: item.mxlPath, // ✅ 改为 mxlPath
             image: item.image,
@@ -93,8 +93,8 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
   TextEditingController searchController = TextEditingController();
 
   void loadScoresFromDB() async {
-    final userid = UserSession.getUserId();
-    final result = await ScoreDao.fetchAllScores(userid: userid);
+    final localid = UserSession.getUserId();
+    final result = await ScoreDao.fetchAllScores(localid: localid);
 
     setState(() {
       scoreList = result.map((row) => ScoreItem(
@@ -122,8 +122,8 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
 
 
   void addNewScore(String name) async {
-    final userid = UserSession.getUserId();
-    await ScoreDao.insertScore(userid: userid, title: name);
+    final localid = UserSession.getUserId();
+    await ScoreDao.insertScore(localid: localid, title: name);
     loadScoresFromDB();
   }
 
@@ -138,8 +138,8 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
     required String title,
     required String collectionId,
   }) async {
-    final userid = UserSession.getUserId();
-    final scoreId = await ScoreDao.insertScore(userid: userid, title: title);
+    final localid = UserSession.getUserId();
+    final scoreId = await ScoreDao.insertScore(localid: localid, title: title);
 
     await CollectionItemDao.insertScoreToCollection(
       collectionId: collectionId,
