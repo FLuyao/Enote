@@ -6,6 +6,8 @@ import 'user_info.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'reset_password.dart';
+import '/models/database_helper.dart';
+
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -208,9 +210,14 @@ class _LoginPageState extends State<LoginPage> {
         CheckboxListTile(
           title: const Text('启用云同步'),
           value: _syncEnabled,
-          onChanged: (value) => setState(() => _syncEnabled = value!),
-          controlAffinity: ListTileControlAffinity.leading,
-          activeColor: primaryColor,
+          onChanged: (value) async {
+            setState(() => _syncEnabled = value!);
+
+            // ⚠️ 实时更新数据库中的 syncEnabled
+            final dbHelper = DatabaseHelper();
+
+            await dbHelper.updateSyncEnabled(_usernameController.text, value!);
+          },
         ),
       ],
     );
@@ -283,3 +290,4 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 }
+
