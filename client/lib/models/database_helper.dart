@@ -88,13 +88,16 @@ class DatabaseHelper {
   Future<Database> _initDb() async {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, "score_app.db");
-     await deleteDatabase(path);
+    await deleteDatabase(path);
 
     return await openDatabase(
       path,
       version: 1,
       onCreate: _onCreate,
       onOpen: (db) async {
+        await db.execute("PRAGMA foreign_keys = ON");
+        final result = await db.rawQuery("PRAGMA foreign_keys");
+        print("🔍 外键支持状态: ${result.first}"); // 应该输出 {foreign_keys: 1}
         print("📂 数据库已打开: \$path");
         final tables = await db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'");
         print("📋 当前所有表: \$tables");
@@ -103,40 +106,46 @@ class DatabaseHelper {
   }
 
   Future _onCreate(Database db, int version) async {
-    // ✅ 新增用户信息表
-    await db.execute('''
- CREATE TABLE users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  userId TEXT,
-  username TEXT,
-  password TEXT,
-  SyncEnabled INTEGER
-)
-''');
+    // ✅ 启用外键支持
+    await db.execute("PRAGMA foreign_keys = ON");
 
+    // ✅ 用户信息表
+    await db.execute('''
+    CREATE TABLE users (
+      localid INTEGER PRIMARY KEY AUTOINCREMENT,
+      userId TEXT,
+      username TEXT,
+      password TEXT,
+      SyncEnabled INTEGER
+    )
+  ''');
+
+    // ✅ 曲谱表，关联用户
     await db.execute('''
     CREATE TABLE Score (
       Scoreid TEXT PRIMARY KEY,
-      Userid TEXT NOT NULL,
+      localid INTEGER NOT NULL,
       Title TEXT NOT NULL,
       Create_time TEXT NOT NULL,
       Access_time TEXT NOT NULL,
-      MxlPath TEXT,         -- ✅ 改为保存本地 MXL 路径
-      Image TEXT
+      MxlPath TEXT,
+      Image TEXT,
+      FOREIGN KEY (localid) REFERENCES users(localid) ON DELETE CASCADE
     )
   ''');
 
-    // ✅ 新增谱集信息表
+    // ✅ 谱集信息表，关联用户
     await db.execute('''
     CREATE TABLE CollectionInfo (
       Collectionid TEXT PRIMARY KEY,
-      Userid TEXT NOT NULL,
+      localid INTEGER NOT NULL,
       Title TEXT NOT NULL,
-      Create_time TEXT NOT NULL
+      Create_time TEXT NOT NULL,
+      FOREIGN KEY (localid) REFERENCES users(localid) ON DELETE CASCADE
     )
   ''');
 
-    // ✅ 新增谱集曲谱关联表
+    // ✅ 谱集与曲谱的关联表，关联谱集和曲谱
     await db.execute('''
     CREATE TABLE CollectionItem (
       id TEXT PRIMARY KEY,
@@ -147,3 +156,4 @@ class DatabaseHelper {
   ''');
   }
 }
+
