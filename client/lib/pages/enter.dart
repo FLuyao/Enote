@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'reset_password.dart';
 import '/models/database_helper.dart';
+import'/models/user_session.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -245,6 +246,23 @@ class _LoginPageState extends State<LoginPage> {
           // 保存用户数据
           await _saveUserData(responseData['token'], _usernameController.text);
 
+          final dbHelper = DatabaseHelper();
+          final dbClient = await dbHelper.db;
+
+// 查询本地数据库中该用户名对应的 localid
+          final result = await dbClient.query(
+            'users',
+            where: 'username = ?',
+            whereArgs: [_usernameController.text],
+          );
+
+          if (result.isNotEmpty) {
+            int localId = result.first['localid'] as int;
+            UserSession.setLocalId(localId);
+            print("✅ 当前用户 localid: $localId");
+          }
+
+
           // 跳转页面
           Navigator.pushReplacement(
             context,
@@ -290,4 +308,3 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 }
-
