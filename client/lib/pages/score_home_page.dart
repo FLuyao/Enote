@@ -52,7 +52,7 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
           print('以图像方式导入曲谱');
         },
         onMxlImported: (ScoreItem item) async {
-          final localid = UserSession.getUserId();
+          final localid = UserSession. getLocalId();
 
           final scoreId = await ScoreDao.insertScore(
             localid: localid,
@@ -93,7 +93,7 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
   TextEditingController searchController = TextEditingController();
 
   void loadScoresFromDB() async {
-    final localid = UserSession.getUserId();
+    final localid = UserSession. getLocalId();
     final result = await ScoreDao.fetchAllScores(localid: localid);
 
     setState(() {
@@ -122,7 +122,7 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
 
 
   void addNewScore(String name) async {
-    final localid = UserSession.getUserId();
+    final localid = UserSession. getLocalId();
     await ScoreDao.insertScore(localid: localid, title: name);
     loadScoresFromDB();
   }
@@ -138,7 +138,7 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
     required String title,
     required String collectionId,
   }) async {
-    final localid = UserSession.getUserId();
+    final localid = UserSession. getLocalId();
     final scoreId = await ScoreDao.insertScore(localid: localid, title: title);
 
     await CollectionItemDao.insertScoreToCollection(
@@ -170,7 +170,7 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
   }
 
   void loadCollections() async {
-    final userid = UserSession.getUserId();
+    final userid = UserSession. getLocalId();
     final result = await CollectionInfoDao.fetchCollections(userid);
     setState(() {
       collectionList = result;
@@ -311,7 +311,7 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
             width: double.maxFinite,
             height: 300, // ✅ 显式设置整个内容区域高度
             child: FutureBuilder<List<Map<String, dynamic>>>(
-              future: CollectionInfoDao.fetchCollections(UserSession.getUserId()),
+              future: CollectionInfoDao.fetchCollections(UserSession.getLocalId()),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(child: CircularProgressIndicator());
@@ -475,8 +475,8 @@ class _ScoreHomePageState extends State<ScoreHomePage> {
                 final title = controller.text.trim();
                 if (title.isEmpty) return;
 
-                final userid = UserSession.getUserId();
-                await CollectionInfoDao.createCollection(userid, title);
+                final localid = UserSession.getLocalId();
+                await CollectionInfoDao.createCollection(localid, title);
                 Navigator.pop(context);
                 loadCollections(); // 刷新列表
               },
