@@ -8,7 +8,7 @@ final uuid = Uuid();
 class ScoreDao {
   // 插入一条 Score
   static Future<String> insertScore({
-    required String localid,
+    required int? localid,
     required String title,
     String? mxlPath,
     String? image,
@@ -32,7 +32,7 @@ class ScoreDao {
 
   // 查询所有曲谱
   static Future<List<Map<String, dynamic>>> fetchAllScores({
-    required String localid,
+    required int? localid,
   }) async {
     final dbClient = await DatabaseHelper().db;
     return await dbClient.query(
