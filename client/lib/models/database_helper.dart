@@ -124,7 +124,7 @@ class DatabaseHelper {
     await db.execute('''
     CREATE TABLE Score (
       Scoreid TEXT PRIMARY KEY,
-      localid INTEGER NOT NULL,
+      localid INTEGER,
       Title TEXT NOT NULL,
       Create_time TEXT NOT NULL,
       Access_time TEXT NOT NULL,
@@ -138,7 +138,7 @@ class DatabaseHelper {
     await db.execute('''
     CREATE TABLE CollectionInfo (
       Collectionid TEXT PRIMARY KEY,
-      localid INTEGER NOT NULL,
+      localid INTEGER,
       Title TEXT NOT NULL,
       Create_time TEXT NOT NULL,
       FOREIGN KEY (localid) REFERENCES users(localid) ON DELETE CASCADE
